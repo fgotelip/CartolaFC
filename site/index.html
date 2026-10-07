@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AT NIGHT'S LEAGUE - Turnos</title>
+<meta name="description" content="Classificação por turnos da AT NIGHT'S LEAGUE no Cartola FC.">
+<meta name="theme-color" content="#0f1b3d">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🏆%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&display=swap">
+<style>
+  :root {
+    color-scheme: light dark;
+    --noite: #0f1b3d;
+    --papel: #eef1f6;
+    --superficie: #ffffff;
+    --texto: #121a33;
+    --texto-suave: #55607d;
+    --linha: #dde2ed;
+    --refletor: #f2b705;
+    --refletor-fundo: #fff5cf;
+    --lanterna: #c8453b;
+    --foco: #1f7a4d;
+    --aba-fundo: #0f1b3d;
+    --aba-texto: #ffffff;
+    --titulo: "Oswald", "Arial Narrow", "Roboto Condensed", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --papel: #0a1024;
+      --superficie: #121b38;
+      --texto: #e9edf8;
+      --texto-suave: #9aa6c6;
+      --linha: #243059;
+      --refletor-fundo: #2a2a17;
+      --lanterna: #e0665c;
+      --foco: #5fd39a;
+      --aba-fundo: #dfe6ff;
+      --aba-texto: #0f1b3d;
+    }
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--papel);
+    color: var(--texto);
+    font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  :focus-visible { outline: 3px solid var(--foco); outline-offset: 2px; }
+
+  .coluna { width: min(calc(100% - 32px), 640px); margin-inline: auto; }
+
+  /* Faixa de cima */
+  .topo { background: var(--noite); color: #fff; padding: 24px 0 22px; }
+  h1 {
+    margin: 0;
+    font-family: var(--titulo);
+    font-weight: 700;
+    font-size: clamp(1.9rem, 8vw, 2.7rem);
+    line-height: 1.05;
+    letter-spacing: .01em;
+  }
+  h1 .turnos {
+    display: block;
+    margin-top: 6px;
+    font-weight: 500;
+    font-size: .55em;
+    letter-spacing: .32em;
+    color: rgba(255, 255, 255, .72);
+  }
+  .rodada { margin: 14px 0 0; color: rgba(255, 255, 255, .8); font-size: .95rem; }
+  .rodada strong { color: #fff; font-size: 1.05em; }
+
+  /* Seletor de turno */
+  .abas {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 18px 0 14px;
+    padding-bottom: 2px;
+    overflow-x: auto;
+  }
+  .abas-rotulo { margin-inline: 8px 2px; color: var(--texto-suave); font-size: .9rem; }
+  .aba {
+    appearance: none;
+    flex: none;
+    min-width: 44px;
+    height: 44px;
+    padding: 0 14px;
+    border: 1px solid var(--linha);
+    border-radius: 999px;
+    background: var(--superficie);
+    color: var(--texto);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .aba[aria-pressed="true"] { background: var(--aba-fundo); border-color: var(--aba-fundo); color: var(--aba-texto); }
+
+  /* Cabeçalho da tabela */
+  h2 { margin: 0; font-family: var(--titulo); font-weight: 500; font-size: 1.45rem; letter-spacing: .01em; }
+  .detalhe { margin: 4px 0 0; color: var(--texto-suave); font-size: .95rem; }
+  .pips { display: flex; gap: 5px; margin: 10px 0 0; padding: 0; list-style: none; }
+  .pips li { flex: 1; max-width: 44px; height: 8px; border-radius: 4px; background: var(--linha); }
+  .pips li.feita { background: var(--refletor); }
+
+  /* Tabela */
+  .tabela-wrap {
+    margin-top: 14px;
+    background: var(--superficie);
+    border: 1px solid var(--linha);
+    border-radius: 10px;
+    overflow-x: auto;
+  }
+  table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  caption { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  th {
+    padding: 10px 8px;
+    border-bottom: 1px solid var(--linha);
+    color: var(--texto-suave);
+    font-size: .8rem;
+    font-weight: 600;
+    text-align: right;
+    white-space: nowrap;
+  }
+  abbr { text-decoration: none; }
+  td { padding: 13px 8px; border-bottom: 1px solid var(--linha); text-align: right; }
+  tbody tr:last-child td { border-bottom: 0; }
+  th.pos, td.pos { width: 2.5rem; padding-inline: 4px 2px; text-align: center; }
+  th.time, td.time { text-align: left; }
+  td.pos {
+    box-shadow: inset 5px 0 0 var(--marca, transparent);
+    font-family: var(--titulo);
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--texto-suave);
+  }
+  td.time { min-width: 6.5rem; font-weight: 600; font-size: .95rem; overflow-wrap: break-word; }
+  td.pontos { font-weight: 700; font-size: 1.05rem; }
+  td.dif, td.prod { color: var(--texto-suave); }
+  tr.lider { --marca: var(--refletor); background: var(--refletor-fundo); }
+  tr.lider td.pos { color: var(--texto); }
+  tr.lanterna { --marca: var(--lanterna); }
+
+  .nota { margin: 10px 0 0; color: var(--texto-suave); font-size: .85rem; }
+
+  .mensagem {
+    margin: 28px 0;
+    padding: 16px;
+    background: var(--superficie);
+    border: 1px solid var(--linha);
+    border-radius: 10px;
+  }
+  .mensagem.erro { border-color: var(--lanterna); }
+
+  /* Rodapé */
+  footer { margin: 28px auto 40px; color: var(--texto-suave); font-size: .85rem; }
+  footer p { margin: 0 0 6px; }
+  .legenda { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 10px; }
+  .legenda span { display: inline-flex; align-items: center; gap: 6px; }
+  .legenda i { width: 5px; height: 14px; border-radius: 2px; background: var(--marca); }
+  .legenda .lider { --marca: var(--refletor); }
+  .legenda .lanterna { --marca: var(--lanterna); }
+</style>
+</head>
+<body>
+
+<header class="topo">
+  <div class="coluna">
+    <h1><span aria-hidden="true">🏆</span> AT NIGHT'S LEAGUE <span class="turnos">TURNOS</span></h1>
+    <p class="rodada" id="rodada" hidden></p>
+  </div>
+</header>
+
+<main class="coluna">
+  <div class="abas" id="abas" role="group" aria-label="Escolha o turno" hidden></div>
+
+  <section id="painel" hidden>
+    <h2 id="titulo"></h2>
+    <p class="detalhe" id="detalhe"></p>
+    <ol class="pips" id="pips" aria-hidden="true" hidden></ol>
+    <div class="tabela-wrap"><table id="tabela"></table></div>
+    <p class="nota" id="nota" hidden>P/rodada é quanto cada time precisa tirar do líder, por rodada, nas rodadas que restam para alcançá-lo.</p>
+  </section>
+
+  <p class="mensagem" id="mensagem" role="status">Carregando a classificação…</p>
+  <noscript><p class="mensagem erro">Ative o JavaScript do navegador para ver a classificação.</p></noscript>
+</main>
+
+<footer class="coluna">
+  <p>Pontuação sem o bônus do capitão. Dados do Cartola FC.</p>
+  <p id="atualizacao"></p>
+  <div class="legenda" id="legenda" hidden>
+    <span class="lider"><i></i>Líder</span>
+    <span class="lanterna"><i></i>Lanterna</span>
+  </div>
+</footer>
+
+<script>
+"use strict";
+
+/* ------------------------------------------------------------------
+   Configuração
+------------------------------------------------------------------ */
+const ARQUIVO_DADOS = "dados.json";
+const CAMPO_NOME = "slug"; // o que aparece na coluna Time: "slug", "nome" ou "nome_cartola"
+
+/* ------------------------------------------------------------------
+   Cálculos (não mexem na página)
+------------------------------------------------------------------ */
+function arredonda2(n) {
+  return Math.round((n + Number.EPSILON) * 100) / 100;
+}
+
+function nomeDoTime(time) {
+  return time[CAMPO_NOME] || time.slug || time.nome || String(time.id);
+}
+
+// Rodadas do turno que já terminaram (só contam as menores que a rodada atual).
+function rodadasEncerradasDoTurno(dados, turno) {
+  const ultima = Math.min(turno.fim, dados.rodada_atual - 1);
+  const lista = [];
+  for (let r = turno.inicio; r <= ultima; r++) lista.push(r);
+  return lista;
+}
+
+// Turnos que já têm pelo menos uma rodada encerrada.
+function turnosComRodadas(dados) {
+  return dados.turnos.filter((t) => rodadasEncerradasDoTurno(dados, t).length > 0);
+}
+
+// As somas são feitas em números inteiros (décimos de centavo) para não haver erro de ponto flutuante.
+const ESCALA = 10000;
+
+function somaPontos(dados, idTime, rodadas) {
+  const doTime = dados.rodadas[String(idTime)] || {};
+  return rodadas.reduce((total, r) => total + Math.round((Number(doTime[String(r)]) || 0) * ESCALA), 0);
+}
+
+// selecao: "geral" ou o número de um turno.
+function classificar(dados, selecao) {
+  const turnos = turnosComRodadas(dados);
+  const atual = turnos.length ? turnos[turnos.length - 1] : null;
+
+  let turno = null;
+  let rodadas;
+  if (selecao === "geral") {
+    rodadas = turnos.flatMap((t) => rodadasEncerradasDoTurno(dados, t));
+  } else {
+    turno = turnos.find((t) => t.numero === selecao) || null;
+    if (!turno) return null;
+    rodadas = rodadasEncerradasDoTurno(dados, turno);
+  }
+
+  const linhas = dados.times
+    .map((time, ordem) => ({
+      id: time.id,
+      nome: nomeDoTime(time),
+      bruto: somaPontos(dados, time.id, rodadas),
+      ordem,
+    }))
+    .sort((a, b) => b.bruto - a.bruto || a.ordem - b.ordem)
+    .map((l) => ({ ...l, centavos: Math.round(l.bruto / (ESCALA / 100)) }));
+
+  const lider = linhas.length ? linhas[0].centavos : 0;
+  const ultimo = linhas.length ? linhas[linhas.length - 1].centavos : 0;
+  const temMarcas = linhas.length >= 3 && lider !== ultimo;
+  linhas.forEach((l) => {
+    l.pontos = l.centavos / 100;
+    l.dif = (lider - l.centavos) / 100;
+    l.lider = temMarcas && l.centavos === lider;
+    l.lanterna = temMarcas && l.centavos === ultimo;
+  });
+
+  const eAtual = turno !== null && turno === atual;
+  const tamanho = turno ? turno.fim - turno.inicio + 1 : null;
+  const jogadas = eAtual ? rodadas.length : 0;
+  const restantes = eAtual ? tamanho - jogadas : 0;
+  if (eAtual && restantes > 0) {
+    linhas.forEach((l) => { l.porRodada = arredonda2(l.dif / restantes); });
+  }
+
+  return { linhas, turno, rodadas, eAtual, tamanho, jogadas, restantes };
+}
+
+/* ------------------------------------------------------------------
+   Página
+------------------------------------------------------------------ */
+const numero = new Intl.NumberFormat("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+function esc(texto) {
+  return String(texto).replace(/[&<>"']/g, (c) => (
+    { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
+  ));
+}
+
+function plural(n, singular, plur) {
+  return n === 1 ? singular : plur;
+}
+
+function selecaoDoHash(turnos) {
+  const h = (location.hash || "").replace(/^#/, "");
+  const m = /^turno-(\d+)$/.exec(h);
+  if (m && turnos.some((t) => t.numero === Number(m[1]))) return Number(m[1]);
+  return "geral";
+}
+
+function hashDaSelecao(selecao) {
+  return selecao === "geral" ? "geral" : "turno-" + selecao;
+}
+
+function mostraMensagem(texto, erro) {
+  const el = document.getElementById("mensagem");
+  el.textContent = texto;
+  el.className = erro ? "mensagem erro" : "mensagem";
+  el.hidden = false;
+  document.getElementById("painel").hidden = true;
+  document.getElementById("abas").hidden = true;
+}
+
+function desenhaAbas(dados, selecao) {
+  const turnos = turnosComRodadas(dados);
+  const abas = document.getElementById("abas");
+  const botao = (valor, texto, rotulo) =>
+    `<button type="button" class="aba" data-sel="${valor}" aria-label="${rotulo}" aria-pressed="${String(valor) === String(selecao)}">${texto}</button>`;
+  abas.innerHTML =
+    botao("geral", "Geral", "Classificação geral") +
+    '<span class="abas-rotulo" aria-hidden="true">Turno</span>' +
+    turnos.map((t) => botao(t.numero, t.numero + "º", t.numero + "º turno")).join("");
+  abas.hidden = false;
+}
+
+function desenhaTabela(dados, selecao) {
+  const r = classificar(dados, selecao);
+  if (!r) return;
+
+  document.getElementById("titulo").textContent =
+    selecao === "geral" ? "Classificação geral" : `Classificação do ${selecao}º turno`;
+
+  const detalhe = document.getElementById("detalhe");
+  const pips = document.getElementById("pips");
+  pips.hidden = true;
+  pips.innerHTML = "";
+  if (selecao === "geral") {
+    detalhe.textContent = "Soma de todos os turnos.";
+  } else if (r.eAtual) {
+    detalhe.textContent = r.restantes > 0
+      ? `${r.jogadas} de ${r.tamanho} rodadas disputadas, ${plural(r.restantes, "resta", "restam")} ${r.restantes} ${plural(r.restantes, "rodada", "rodadas")}.`
+      : `Turno encerrado, ${r.tamanho} de ${r.tamanho} rodadas disputadas.`;
+    pips.innerHTML = Array.from({ length: r.tamanho }, (_, i) => `<li class="${i < r.jogadas ? "feita" : ""}"></li>`).join("");
+    pips.hidden = false;
+  } else {
+    detalhe.textContent = `Rodadas ${r.turno.inicio} a ${r.turno.fim}.`;
+  }
+
+  const comPorRodada = r.eAtual && r.restantes > 0;
+  const cabecalho =
+    '<th scope="col" class="pos">Pos</th><th scope="col" class="time">Time</th>' +
+    '<th scope="col"><abbr title="Pontos">P</abbr></th><th scope="col">Dif Líder</th>' +
+    (comPorRodada ? '<th scope="col">P/rodada</th>' : "");
+  const corpo = r.linhas.map((l, i) => {
+    const classe = l.lider ? "lider" : l.lanterna ? "lanterna" : "";
+    const marca = l.lider ? ' title="Líder"' : l.lanterna ? ' title="Lanterna"' : "";
+    const dif = l.dif === 0 ? "—" : numero.format(l.dif);
+    const prod = comPorRodada ? `<td class="prod">${l.dif === 0 ? "—" : numero.format(l.porRodada)}</td>` : "";
+    return `<tr class="${classe}"><td class="pos"${marca}>${i + 1}</td><td class="time">${esc(l.nome)}</td>` +
+      `<td class="pontos">${numero.format(l.pontos)}</td><td class="dif">${dif}</td>${prod}</tr>`;
+  }).join("");
+
+  document.getElementById("tabela").innerHTML =
+    `<caption>${esc(document.getElementById("titulo").textContent)}</caption>` +
+    `<thead><tr>${cabecalho}</tr></thead><tbody>${corpo}</tbody>`;
+  document.getElementById("nota").hidden = !comPorRodada;
+  document.getElementById("legenda").hidden = !r.linhas.some((l) => l.lider || l.lanterna);
+  document.getElementById("painel").hidden = false;
+  document.getElementById("mensagem").hidden = true;
+}
+
+function selecionar(dados, selecao) {
+  desenhaAbas(dados, selecao);
+  desenhaTabela(dados, selecao);
+  history.replaceState(null, "", "#" + hashDaSelecao(selecao));
+}
+
+async function iniciar() {
+  let dados;
+  try {
+    const resposta = await fetch(ARQUIVO_DADOS, { cache: "no-store" });
+    if (!resposta.ok) throw new Error("HTTP " + resposta.status);
+    dados = await resposta.json();
+  } catch (erro) {
+    const local = location.protocol === "file:"
+      ? " Para testar no computador, abra a pasta site com um servidor local (python -m http.server)."
+      : " Tente recarregar a página daqui a pouco.";
+    mostraMensagem("Não foi possível carregar os dados." + local, true);
+    return;
+  }
+
+  if (dados.versao !== 1 || !Array.isArray(dados.turnos) || !Array.isArray(dados.times) || !dados.rodadas) {
+    mostraMensagem("Os dados estão em um formato que esta página não entende.", true);
+    return;
+  }
+
+  const rodada = document.getElementById("rodada");
+  rodada.innerHTML = `Rodada atual <strong>${esc(dados.rodada_atual)}</strong>`;
+  rodada.hidden = false;
+
+  if (dados.gerado_em) {
+    const quando = new Date(dados.gerado_em).toLocaleString("pt-BR", {
+      day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit",
+    });
+    document.getElementById("atualizacao").textContent =
+      `Os números mudam quando uma rodada termina. Última mudança: ${quando}.`;
+  }
+
+  const turnos = turnosComRodadas(dados);
+  if (!turnos.length) {
+    mostraMensagem("Ainda não há rodadas encerradas. A classificação aparece aqui quando a primeira rodada terminar.", false);
+    return;
+  }
+
+  document.getElementById("abas").addEventListener("click", (ev) => {
+    const botao = ev.target.closest("button[data-sel]");
+    if (!botao) return;
+    const valor = botao.dataset.sel;
+    selecionar(dados, valor === "geral" ? "geral" : Number(valor));
+  });
+
+  // Se alguém trocar o #turno-N no endereço, a página acompanha.
+  window.addEventListener("hashchange", () => selecionar(dados, selecaoDoHash(turnos)));
+
+  selecionar(dados, selecaoDoHash(turnos));
+}
+
+if (typeof document !== "undefined") iniciar();
+</script>
+</body>
+</html>
