@@ -1,6 +1,6 @@
 {
   "versao": 1,
-  "gerado_em": "2026-10-09T09:04:28Z",
+  "gerado_em": "2026-10-09T18:41:31Z",
   "rodada_atual": 30,
   "config": {
     "total_rodadas": 38,
@@ -30,7 +30,7 @@
     {
       "numero": 5,
       "inicio": 29,
-      "fim": 35
+      "fim": 38
     }
   ],
   "times": [
