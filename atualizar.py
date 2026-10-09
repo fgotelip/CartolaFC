@@ -83,16 +83,18 @@ def com_tentativas(descricao, funcao):
 
 
 def monta_turnos():
-    """Lista de turnos com a primeira e a última rodada de cada um (ambas inclusive)."""
-    quantidade = TOTAL_RODADAS // RODADAS_POR_TURNO
-    return [
-        {
-            "numero": i + 1,
-            "inicio": i * RODADAS_POR_TURNO + 1,
-            "fim": (i + 1) * RODADAS_POR_TURNO,
-        }
-        for i in range(quantidade)
-    ]
+    quantidade = max(TOTAL_RODADAS // RODADAS_POR_TURNO, 1)
+    turnos = []
+    for i in range(quantidade):
+        ultimo = i == quantidade - 1
+        turnos.append(
+            {
+                "numero": i + 1,
+                "inicio": i * RODADAS_POR_TURNO + 1,
+                "fim": TOTAL_RODADAS if ultimo else (i + 1) * RODADAS_POR_TURNO,
+            }
+        )
+    return turnos
 
 
 def pontuacao_sem_bonus_capitao(time_cartola):
