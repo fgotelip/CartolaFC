@@ -142,7 +142,7 @@
   }
   td.time { min-width: 6.5rem; font-weight: 600; font-size: .95rem; overflow-wrap: break-word; }
   td.pontos { font-weight: 700; font-size: 1.05rem; }
-  td.dif, td.prod { color: var(--texto-suave); }
+  td.dif, td.prod, td.media { color: var(--texto-suave); }
   tr.lider { --marca: var(--refletor); background: var(--refletor-fundo); }
   tr.lider td.pos { color: var(--texto); }
   tr.lanterna { --marca: var(--lanterna); }
@@ -277,6 +277,9 @@ function classificar(dados, selecao) {
     l.lanterna = temMarcas && l.centavos === ultimo;
   });
 
+  // Média de pontos por rodada (pontos ÷ rodadas já contadas)
+  linhas.forEach((l) => { l.media = rodadas.length ? l.pontos / rodadas.length : 0; });
+
   const eAtual = turno !== null && turno === atual;
   const tamanho = turno ? turno.fim - turno.inicio + 1 : null;
   const jogadas = eAtual ? rodadas.length : 0;
@@ -359,17 +362,19 @@ function desenhaTabela(dados, selecao) {
   }
 
   const comPorRodada = r.eAtual && r.restantes > 0;
+  const mostraMedia = selecao === "geral";
   const cabecalho =
     '<th scope="col" class="pos">Pos</th><th scope="col" class="time">Time</th>' +
     '<th scope="col"><abbr title="Pontos">P</abbr></th><th scope="col">Dif Líder</th>' +
-    (comPorRodada ? '<th scope="col">P/rodada</th>' : "");
+    (comPorRodada ? '<th scope="col">P/rodada</th>' : "") +
+    (mostraMedia ? '<th scope="col"><abbr title="Média de pontos por rodada">Média</abbr></th>' : "");
   const corpo = r.linhas.map((l, i) => {
     const classe = l.lider ? "lider" : l.lanterna ? "lanterna" : "";
     const marca = l.lider ? ' title="Líder"' : l.lanterna ? ' title="Lanterna"' : "";
     const dif = l.dif === 0 ? "—" : numero.format(l.dif);
     const prod = comPorRodada ? `<td class="prod">${l.dif === 0 ? "—" : numero.format(l.porRodada)}</td>` : "";
     return `<tr class="${classe}"><td class="pos"${marca}>${i + 1}</td><td class="time">${esc(l.nome)}</td>` +
-      `<td class="pontos">${numero.format(l.pontos)}</td><td class="dif">${dif}</td>${prod}</tr>`;
+      `<td class="pontos">${numero.format(l.pontos)}</td><td class="dif">${dif}</td>${prod}${mostraMedia ? `<td class="media">${numero.format(l.media)}</td>` : ""}</tr>`;
   }).join("");
 
   document.getElementById("tabela").innerHTML =
