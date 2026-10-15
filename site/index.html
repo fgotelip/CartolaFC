@@ -142,10 +142,34 @@
   }
   td.time { min-width: 6.5rem; font-weight: 600; font-size: .95rem; overflow-wrap: break-word; }
   td.pontos { font-weight: 700; font-size: 1.05rem; }
-  td.dif, td.prod, td.media { color: var(--texto-suave); }
+  td.dif, td.prod { color: var(--texto-suave); }
   tr.lider { --marca: var(--refletor); background: var(--refletor-fundo); }
   tr.lider td.pos { color: var(--texto); }
   tr.lanterna { --marca: var(--lanterna); }
+
+  /* Celulares: tabela mais compacta para as 5 colunas caberem sem cortar */
+  @media (max-width: 480px) {
+    th, td { padding-inline: 5px; }
+    th { font-size: .74rem; }
+    td { font-size: .92rem; }
+    td.pontos { font-size: .98rem; }
+    td.time { min-width: 4.5rem; font-size: .9rem; overflow-wrap: anywhere; }
+    th.pos, td.pos { width: 2rem; }
+    td.pos { font-size: 1rem; }
+    .abas { gap: 4px; }
+    .abas-rotulo { margin-inline: 4px 0; }
+    .aba { min-width: 40px; padding: 0 10px; }
+  }
+  @media (max-width: 340px) {
+    th, td { padding-inline: 3px; }
+    th { font-size: .7rem; }
+    td.pontos { font-size: .9rem; }
+    td.dif, td.prod { font-size: .85rem; }
+    .aba { min-width: 36px; padding: 0 8px; }
+  }
+  @media (max-width: 380px) {
+    .abas-rotulo { display: none; }
+  }
 
   .nota { margin: 10px 0 0; color: var(--texto-suave); font-size: .85rem; }
 
@@ -277,14 +301,13 @@ function classificar(dados, selecao) {
     l.lanterna = temMarcas && l.centavos === ultimo;
   });
 
-  // Média de pontos por rodada (pontos ÷ rodadas já contadas)
-  linhas.forEach((l) => { l.media = rodadas.length ? l.pontos / rodadas.length : 0; });
-
   const eAtual = turno !== null && turno === atual;
   const tamanho = turno ? turno.fim - turno.inicio + 1 : null;
   const jogadas = eAtual ? rodadas.length : 0;
-  const restantes = eAtual ? tamanho - jogadas : 0;
-  if (eAtual && restantes > 0) {
+  // Rodadas que faltam: no turno atual, as do turno; na geral (turno === null), as do campeonato inteiro.
+  const totalRodadas = dados.turnos[dados.turnos.length - 1].fim;
+  const restantes = turno === null ? totalRodadas - rodadas.length : (eAtual ? tamanho - jogadas : 0);
+  if (restantes > 0 && (eAtual || turno === null)) {
     linhas.forEach((l) => { l.porRodada = arredonda2(l.dif / restantes); });
   }
 
@@ -350,7 +373,9 @@ function desenhaTabela(dados, selecao) {
   pips.hidden = true;
   pips.innerHTML = "";
   if (selecao === "geral") {
-    detalhe.textContent = "Soma de todos os turnos.";
+    detalhe.textContent = r.restantes > 0
+      ? `Soma de todos os turnos. ${plural(r.restantes, "Resta", "Restam")} ${r.restantes} ${plural(r.restantes, "rodada", "rodadas")} do campeonato.`
+      : "Soma de todos os turnos.";
   } else if (r.eAtual) {
     detalhe.textContent = r.restantes > 0
       ? `${r.jogadas} de ${r.tamanho} rodadas disputadas, ${plural(r.restantes, "resta", "restam")} ${r.restantes} ${plural(r.restantes, "rodada", "rodadas")}.`
@@ -361,20 +386,18 @@ function desenhaTabela(dados, selecao) {
     detalhe.textContent = `Rodadas ${r.turno.inicio} a ${r.turno.fim}.`;
   }
 
-  const comPorRodada = r.eAtual && r.restantes > 0;
-  const mostraMedia = selecao === "geral";
+  const comPorRodada = r.restantes > 0 && (r.eAtual || selecao === "geral");
   const cabecalho =
     '<th scope="col" class="pos">Pos</th><th scope="col" class="time">Time</th>' +
     '<th scope="col"><abbr title="Pontos">P</abbr></th><th scope="col">Dif Líder</th>' +
-    (comPorRodada ? '<th scope="col">P/rodada</th>' : "") +
-    (mostraMedia ? '<th scope="col"><abbr title="Média de pontos por rodada">Média</abbr></th>' : "");
+    (comPorRodada ? '<th scope="col">P/rodada</th>' : "");
   const corpo = r.linhas.map((l, i) => {
     const classe = l.lider ? "lider" : l.lanterna ? "lanterna" : "";
     const marca = l.lider ? ' title="Líder"' : l.lanterna ? ' title="Lanterna"' : "";
     const dif = l.dif === 0 ? "—" : numero.format(l.dif);
     const prod = comPorRodada ? `<td class="prod">${l.dif === 0 ? "—" : numero.format(l.porRodada)}</td>` : "";
     return `<tr class="${classe}"><td class="pos"${marca}>${i + 1}</td><td class="time">${esc(l.nome)}</td>` +
-      `<td class="pontos">${numero.format(l.pontos)}</td><td class="dif">${dif}</td>${prod}${mostraMedia ? `<td class="media">${numero.format(l.media)}</td>` : ""}</tr>`;
+      `<td class="pontos">${numero.format(l.pontos)}</td><td class="dif">${dif}</td>${prod}</tr>`;
   }).join("");
 
   document.getElementById("tabela").innerHTML =
